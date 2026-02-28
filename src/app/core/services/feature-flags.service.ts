@@ -41,4 +41,8 @@ export class FeatureFlagsService {
   snapshotCategoriesEnabled(): boolean {
     return this.categoriesEnabledSubject.value;
   }
+
+  snapshotReady(): boolean {
+    return this.readySubject.value;
+  }
 }

@@ -14,4 +14,8 @@ describe('FeatureFlagsService', () => {
   it('debe exponer categoriesEnabled$ con valor por defecto true', () => {
     expect(service.snapshotCategoriesEnabled()).toBeTrue();
   });
+
+  it('debe iniciar con ready en false', () => {
+    expect(service.snapshotReady()).toBeFalse();
+  });
 });
