@@ -1,4 +1,4 @@
-import { Inject, Injectable } from '@angular/core';
+import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 import { v4 as uuid } from 'uuid';
 import { Category } from '../../core/models/category.model';
@@ -11,9 +11,7 @@ export class CategoriesService {
   private readonly subject = new BehaviorSubject<Category[]>([]);
   readonly categories$ = this.subject.asObservable();
 
-  constructor(
-    @Inject(StorageService) private readonly storage: StorageService,
-  ) {}
+  constructor(private readonly storage: StorageService) {}
 
   async init(): Promise<void> {
     const items = await this.storage.get<Category[]>(KEY, []);
