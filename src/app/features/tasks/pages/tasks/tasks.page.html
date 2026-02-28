@@ -1,13 +1,95 @@
-<ion-header [translucent]="true">
+<ion-header>
   <ion-toolbar>
-    <ion-title>tasks</ion-title>
+    <ion-title>Tareas</ion-title>
   </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">tasks</ion-title>
-    </ion-toolbar>
-  </ion-header>
+<ion-content class="ion-padding">
+  @if (vm$ | async; as vm) {
+
+    <ion-item>
+      <ion-input
+        label="Nueva tarea"
+        labelPlacement="stacked"
+        [(ngModel)]="title"
+        placeholder="Escribe una tarea"
+      ></ion-input>
+    </ion-item>
+
+    @if (vm.categoriesEnabled) {
+      <ion-item>
+        <ion-select
+          label="Categoría (opcional)"
+          labelPlacement="stacked"
+          [value]="selectedCategoryForNewTask"
+          (ionChange)="selectedCategoryForNewTask = $event.detail.value"
+        >
+          <ion-select-option [value]="null">Sin categoría</ion-select-option>
+
+          @for (c of vm.categories; track c.id) {
+            <ion-select-option [value]="c.id">
+              {{ c.name }}
+            </ion-select-option>
+          }
+
+        </ion-select>
+      </ion-item>
+    }
+
+    <ion-button expand="block" (click)="addTask()">Agregar</ion-button>
+
+    @if (vm.categoriesEnabled) {
+      <ion-item>
+        <ion-select
+          label="Filtrar por categoría"
+          labelPlacement="stacked"
+          [value]="vm.selectedCategoryId"
+          (ionChange)="onFilterChange($event.detail.value)"
+        >
+          <ion-select-option [value]="null">Todas</ion-select-option>
+
+          @for (c of vm.categories; track c.id) {
+            <ion-select-option [value]="c.id">
+              {{ c.name }}
+            </ion-select-option>
+          }
+
+        </ion-select>
+      </ion-item>
+    }
+
+    <ion-list>
+      @for (t of vm.tasks; track t.id) {
+        <ion-item>
+          <ion-checkbox
+            slot="start"
+            [checked]="t.completed"
+            (ionChange)="toggle(t)"
+          ></ion-checkbox>
+
+          <ion-label>
+            <h2 [style.textDecoration]="t.completed ? 'line-through' : 'none'">
+              {{ t.title }}
+            </h2>
+
+            @if (vm.categoriesEnabled && t.categoryId) {
+              <p>
+                {{
+                  vm.categories.find(c => c.id === t.categoryId)?.name
+                  ?? 'Sin categoría'
+                }}
+              </p>
+            }
+          </ion-label>
+
+          <ion-buttons slot="end">
+            <ion-button fill="clear" (click)="remove(t)">
+              <ion-icon name="trashOutline"></ion-icon>
+            </ion-button>
+          </ion-buttons>
+        </ion-item>
+      }
+    </ion-list>
+
+  }
 </ion-content>

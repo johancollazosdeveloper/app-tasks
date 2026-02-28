@@ -1,13 +1,94 @@
-<ion-header [translucent]="true">
+<ion-header>
   <ion-toolbar>
-    <ion-title>categories</ion-title>
+    <ion-title>Categorías</ion-title>
   </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">categories</ion-title>
-    </ion-toolbar>
-  </ion-header>
+<ion-content class="ion-padding">
+  <ion-item>
+    <ion-input
+      label="Nombre"
+      labelPlacement="stacked"
+      [(ngModel)]="name"
+      placeholder="Ej. Trabajo"
+    ></ion-input>
+  </ion-item>
+
+  <ion-item>
+    <ion-input
+      label="Color (opcional)"
+      labelPlacement="stacked"
+      [(ngModel)]="color"
+      placeholder="Ej. #005e80"
+    ></ion-input>
+  </ion-item>
+
+  <ion-button expand="block" (click)="addCategory()">Agregar categoría</ion-button>
+
+  @if (categories$ | async; as categories) {
+    <ion-list>
+      @for (c of categories; track c.id) {
+        <ion-item>
+          <ion-label>
+            <h2>{{ c.name }}</h2>
+            @if (c.color) {
+              <p>{{ c.color }}</p>
+            }
+          </ion-label>
+
+          <ion-buttons slot="end">
+            <ion-button fill="clear" (click)="openEdit(c)">
+              <ion-icon name="createOutline"></ion-icon>
+            </ion-button>
+
+            <ion-button fill="clear" (click)="removeCategory(c)">
+              <ion-icon name="trashOutline"></ion-icon>
+            </ion-button>
+          </ion-buttons>
+        </ion-item>
+      }
+    </ion-list>
+
+    @if (categories.length === 0) {
+      <p>No hay categorías todavía.</p>
+    }
+  }
+
+  <ion-modal [isOpen]="isEditOpen" (didDismiss)="closeEdit()">
+    <ng-template>
+      <ion-header>
+        <ion-toolbar>
+          <ion-title>Editar categoría</ion-title>
+          <ion-buttons slot="end">
+            <ion-button fill="clear" (click)="closeEdit()">
+              <ion-icon name="closeOutline"></ion-icon>
+            </ion-button>
+          </ion-buttons>
+        </ion-toolbar>
+      </ion-header>
+
+      <ion-content class="ion-padding">
+        <ion-item>
+          <ion-input
+            label="Nombre"
+            labelPlacement="stacked"
+            [(ngModel)]="editName"
+          ></ion-input>
+        </ion-item>
+
+        <ion-item>
+          <ion-input
+            label="Color (opcional)"
+            labelPlacement="stacked"
+            [(ngModel)]="editColor"
+          ></ion-input>
+        </ion-item>
+
+        <ion-button expand="block" (click)="saveEdit()">
+          <ion-icon name="saveOutline" slot="start"></ion-icon>
+          Guardar
+        </ion-button>
+      </ion-content>
+    </ng-template>
+  </ion-modal>
 </ion-content>
