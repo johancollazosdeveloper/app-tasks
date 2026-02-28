@@ -1,12 +1,22 @@
 <ion-header>
   <ion-toolbar>
     <ion-title>Tareas</ion-title>
+
+    @if (vm$ | async; as vm) {
+      @if (vm.categoriesEnabled) {
+        <ion-buttons slot="end">
+          <ion-button routerLink="/categorias">
+            <ion-icon name="pricetagOutline" slot="start"></ion-icon>
+            Categorías
+          </ion-button>
+        </ion-buttons>
+      }
+    }
   </ion-toolbar>
 </ion-header>
 
 <ion-content class="ion-padding">
   @if (vm$ | async; as vm) {
-
     <ion-item>
       <ion-input
         label="Nueva tarea"
@@ -31,7 +41,6 @@
               {{ c.name }}
             </ion-select-option>
           }
-
         </ion-select>
       </ion-item>
     }
@@ -53,43 +62,40 @@
               {{ c.name }}
             </ion-select-option>
           }
-
         </ion-select>
       </ion-item>
     }
 
-    <ion-list>
-      @for (t of vm.tasks; track t.id) {
-        <ion-item>
-          <ion-checkbox
-            slot="start"
-            [checked]="t.completed"
-            (ionChange)="toggle(t)"
-          ></ion-checkbox>
+    @if (vm.tasks.length === 0) {
+      <p>No hay tareas todavía.</p>
+    } @else {
+      <ion-list>
+        @for (t of vm.tasks; track t.id) {
+          <ion-item>
+            <ion-checkbox
+              slot="start"
+              [checked]="t.completed"
+              (ionChange)="toggle(t)"
+            ></ion-checkbox>
 
-          <ion-label>
-            <h2 [style.textDecoration]="t.completed ? 'line-through' : 'none'">
-              {{ t.title }}
-            </h2>
+            <ion-label>
+              <h2 [style.textDecoration]="t.completed ? 'line-through' : 'none'">
+                {{ t.title }}
+              </h2>
 
-            @if (vm.categoriesEnabled && t.categoryId) {
-              <p>
-                {{
-                  vm.categories.find(c => c.id === t.categoryId)?.name
-                  ?? 'Sin categoría'
-                }}
-              </p>
-            }
-          </ion-label>
+              @if (vm.categoriesEnabled && t.categoryId) {
+                <p>{{ vm.categoryNameById.get(t.categoryId) ?? 'Sin categoría' }}</p>
+              }
+            </ion-label>
 
-          <ion-buttons slot="end">
-            <ion-button fill="clear" (click)="remove(t)">
-              <ion-icon name="trashOutline"></ion-icon>
-            </ion-button>
-          </ion-buttons>
-        </ion-item>
-      }
-    </ion-list>
-
+            <ion-buttons slot="end">
+              <ion-button fill="clear" (click)="remove(t)">
+                <ion-icon name="trashOutline"></ion-icon>
+              </ion-button>
+            </ion-buttons>
+          </ion-item>
+        }
+      </ion-list>
+    }
   }
 </ion-content>

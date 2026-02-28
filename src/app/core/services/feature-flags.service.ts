@@ -18,6 +18,9 @@ export class FeatureFlagsService {
   );
   readonly categoriesEnabled$ = this.categoriesEnabledSubject.asObservable();
 
+  private readonly readySubject = new BehaviorSubject<boolean>(false);
+  readonly ready$ = this.readySubject.asObservable();
+
   async init(firebaseConfig: object): Promise<void> {
     this.app = initializeApp(firebaseConfig);
     this.rc = getRemoteConfig(this.app);
@@ -31,6 +34,8 @@ export class FeatureFlagsService {
 
     const enabled = getValue(this.rc, 'ff_categories').asBoolean();
     this.categoriesEnabledSubject.next(enabled);
+
+    this.readySubject.next(true);
   }
 
   snapshotCategoriesEnabled(): boolean {

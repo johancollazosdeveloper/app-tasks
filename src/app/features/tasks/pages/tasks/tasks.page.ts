@@ -18,8 +18,9 @@ import {
 } from '@ionic/angular/standalone';
 
 import { FormsModule } from '@angular/forms';
+import { RouterLink } from '@angular/router';
 import { addIcons } from 'ionicons';
-import { trashOutline } from 'ionicons/icons';
+import { pricetagOutline, trashOutline } from 'ionicons/icons';
 import { combineLatest, map, startWith } from 'rxjs';
 
 import { Category } from '../../../../core/models/category.model';
@@ -28,11 +29,12 @@ import { FeatureFlagsService } from '../../../../core/services/feature-flags.ser
 import { CategoriesService } from '../../../categories/categories.service';
 import { TasksService } from '../../tasks.service';
 
-addIcons({ trashOutline });
+addIcons({ trashOutline, pricetagOutline });
 
 type TasksVm = {
   categoriesEnabled: boolean;
   categories: Category[];
+  categoryNameById: Map<string, string>;
   tasks: Task[];
   selectedCategoryId: string | null;
 };
@@ -45,6 +47,7 @@ type TasksVm = {
   imports: [
     CommonModule,
     FormsModule,
+    RouterLink,
     IonHeader,
     IonToolbar,
     IonTitle,
@@ -81,9 +84,14 @@ export class TasksPage {
         ? tasks.filter((t) => t.categoryId === selected)
         : tasks;
 
+      const categoryNameById = new Map<string, string>(
+        categories.map((c) => [c.id, c.name]),
+      );
+
       const vm: TasksVm = {
         categoriesEnabled,
         categories,
+        categoryNameById,
         tasks: filtered,
         selectedCategoryId: selected,
       };
