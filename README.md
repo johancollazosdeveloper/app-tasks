@@ -90,3 +90,45 @@ src/
 npm install
 ionic serve
 ```
+
+---
+
+## Compilación para Android e iOS (Cordova)
+
+La aplicación está preparada para compilación híbrida mediante Cordova.
+
+Antes de compilar, generar el build web:
+
+- ionic build
+
+Copiar el resultado del build a:
+
+cordova/www/
+
+### Android (Generación de APK)
+
+Desde la carpeta cordova:
+
+- cordova platform add android
+- cordova build android
+
+Para generar APK en modo release:
+
+- cordova build android --release
+
+Ruta del APK generado:
+
+cordova/platforms/android/app/build/outputs/apk/release/
+
+### iOS (Generación de IPA)
+
+Requiere macOS con Xcode instalado.
+
+Desde la carpeta cordova:
+
+- cordova platform add ios
+- cordova build ios
+
+Para generar archivo IPA firmado:
+
+- cordova build ios --release
