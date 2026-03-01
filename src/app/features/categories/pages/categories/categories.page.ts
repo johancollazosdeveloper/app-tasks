@@ -2,6 +2,7 @@ import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import {
+  IonBackButton,
   IonButton,
   IonButtons,
   IonContent,
@@ -49,6 +50,7 @@ addIcons({ createOutline, trashOutline, closeOutline, saveOutline });
     IonButtons,
     IonIcon,
     IonModal,
+    IonBackButton,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
