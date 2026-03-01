@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component, ViewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import {
   IonBackButton,
@@ -16,7 +16,6 @@ import {
   IonTitle,
   IonToolbar,
 } from '@ionic/angular/standalone';
-import { addIcons } from 'ionicons';
 import {
   closeOutline,
   createOutline,
@@ -27,8 +26,6 @@ import {
 import { Category } from '../../../../core/models/category.model';
 import { TasksService } from '../../../tasks/tasks.service';
 import { CategoriesService } from '../../categories.service';
-
-addIcons({ createOutline, trashOutline, closeOutline, saveOutline });
 
 @Component({
   selector: 'app-categories',
@@ -55,6 +52,8 @@ addIcons({ createOutline, trashOutline, closeOutline, saveOutline });
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CategoriesPage {
+  @ViewChild('editModal') editModal?: IonModal;
+
   name = '';
   color = '';
 
@@ -63,19 +62,41 @@ export class CategoriesPage {
   editName = '';
   editColor = '';
 
+  isColorOpen = false;
+  isEditColorOpen = false;
+
   readonly categories$ = this.categories.categories$;
+  readonly createOutline = createOutline;
+  readonly trashOutline = trashOutline;
+  readonly closeOutline = closeOutline;
+  readonly saveOutline = saveOutline;
 
   constructor(
     private readonly categories: CategoriesService,
     private readonly tasks: TasksService,
   ) {}
 
+  normalizeColor(value: string | null | undefined): string | null {
+    const v = (value ?? '').trim();
+    if (!v) return null;
+    const hex = v.startsWith('#') ? v : `#${v}`;
+    return /^#[0-9A-Fa-f]{6}$/.test(hex) ? hex : null;
+  }
+
+  clearColor(): void {
+    this.color = '';
+  }
+
+  clearEditColor(): void {
+    this.editColor = '';
+  }
+
   async addCategory(): Promise<void> {
     const n = this.name.trim();
     if (!n) return;
 
-    const c = (this.color ?? '').trim();
-    await this.categories.create(n, c || undefined);
+    const c = this.normalizeColor(this.color);
+    await this.categories.create(n, c ?? undefined);
 
     this.name = '';
     this.color = '';
@@ -84,15 +105,18 @@ export class CategoriesPage {
   openEdit(category: Category): void {
     this.editId = category.id;
     this.editName = category.name;
-    this.editColor = category.color ?? '';
+    this.editColor = this.normalizeColor(category.color) ?? '';
     this.isEditOpen = true;
   }
 
-  closeEdit(): void {
+  async closeEdit(): Promise<void> {
     this.isEditOpen = false;
+    this.isEditColorOpen = false;
     this.editId = null;
     this.editName = '';
     this.editColor = '';
+
+    await this.editModal?.dismiss();
   }
 
   async saveEdit(): Promise<void> {
@@ -101,16 +125,16 @@ export class CategoriesPage {
     const n = this.editName.trim();
     if (!n) return;
 
-    const c = (this.editColor ?? '').trim();
+    const c = this.normalizeColor(this.editColor);
     await this.categories.update(this.editId, {
       name: n,
-      color: c || undefined,
+      color: c ?? undefined,
     });
-    this.closeEdit();
+
+    await this.closeEdit();
   }
 
   async removeCategory(category: Category): Promise<void> {
-    // decisión de negocio defensiva: no borramos tareas, limpiamos referencia
     await this.tasks.clearCategory(category.id);
     await this.categories.remove(category.id);
   }

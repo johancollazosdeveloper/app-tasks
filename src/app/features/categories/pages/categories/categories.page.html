@@ -13,58 +13,74 @@
       label="Nombre"
       labelPlacement="stacked"
       [(ngModel)]="name"
-      placeholder="Ej. Trabajo"
+      placeholder="Ej. Familia"
     ></ion-input>
   </ion-item>
 
   <ion-item>
-    <ion-input
-      label="Color (opcional)"
-      labelPlacement="stacked"
-      [(ngModel)]="color"
-      placeholder="Ej. #005e80"
-    ></ion-input>
+    <ion-label>
+      <h3>Color (opcional)</h3>
+      <p>{{ normalizeColor(color) ?? 'Sin color' }}</p>
+    </ion-label>
+
+    <div
+      slot="end"
+      class="color-dot"
+      [style.background]="normalizeColor(color) || 'transparent'"
+      [class.empty]="!normalizeColor(color)"
+    ></div>
+
+    <ion-button fill="clear" slot="end" (click)="isColorOpen = true">
+      Elegir
+    </ion-button>
   </ion-item>
 
   <ion-button expand="block" (click)="addCategory()">Agregar categoría</ion-button>
 
   @if (categories$ | async; as categories) {
-    <ion-list>
-      @for (c of categories; track c.id) {
-        <ion-item>
-          <ion-label>
-            <h2>{{ c.name }}</h2>
-            @if (c.color) {
-              <p>{{ c.color }}</p>
-            }
-          </ion-label>
-
-          <ion-buttons slot="end">
-            <ion-button fill="clear" (click)="openEdit(c)">
-              <ion-icon name="createOutline"></ion-icon>
-            </ion-button>
-
-            <ion-button fill="clear" (click)="removeCategory(c)">
-              <ion-icon name="trashOutline"></ion-icon>
-            </ion-button>
-          </ion-buttons>
-        </ion-item>
-      }
-    </ion-list>
-
     @if (categories.length === 0) {
       <p>No hay categorías todavía.</p>
+    } @else {
+      <ion-list>
+        @for (c of categories; track c.id) {
+          <ion-item>
+            <div
+              slot="start"
+              class="color-dot"
+              [style.background]="normalizeColor(c.color) || 'transparent'"
+              [class.empty]="!normalizeColor(c.color)"
+            ></div>
+
+            <ion-label>
+              <h2>{{ c.name }}</h2>
+              @if (c.color) {
+                <p>{{ c.color }}</p>
+              }
+            </ion-label>
+
+            <ion-buttons slot="end">
+              <ion-button fill="clear" (click)="openEdit(c)">
+                <ion-icon [icon]="createOutline"></ion-icon>
+              </ion-button>
+
+              <ion-button fill="clear" (click)="removeCategory(c)">
+                <ion-icon [icon]="trashOutline"></ion-icon>
+              </ion-button>
+            </ion-buttons>
+          </ion-item>
+        }
+      </ion-list>
     }
   }
 
-  <ion-modal [isOpen]="isEditOpen" (didDismiss)="closeEdit()">
+  <ion-modal #editModal [isOpen]="isEditOpen" (didDismiss)="closeEdit()">
     <ng-template>
       <ion-header>
         <ion-toolbar>
           <ion-title>Editar categoría</ion-title>
           <ion-buttons slot="end">
             <ion-button fill="clear" (click)="closeEdit()">
-              <ion-icon name="closeOutline"></ion-icon>
+              <ion-icon [icon]="closeOutline"></ion-icon>
             </ion-button>
           </ion-buttons>
         </ion-toolbar>
@@ -80,16 +96,79 @@
         </ion-item>
 
         <ion-item>
-          <ion-input
-            label="Color (opcional)"
-            labelPlacement="stacked"
-            [(ngModel)]="editColor"
-          ></ion-input>
+          <ion-label>
+            <h3>Color (opcional)</h3>
+            <p>{{ normalizeColor(editColor) ?? 'Sin color' }}</p>
+          </ion-label>
+
+          <div
+            slot="end"
+            class="color-dot"
+            [style.background]="normalizeColor(editColor) || 'transparent'"
+            [class.empty]="!normalizeColor(editColor)"
+          ></div>
+
+          <ion-button fill="clear" slot="end" (click)="isEditColorOpen = true">
+            Elegir
+          </ion-button>
         </ion-item>
 
         <ion-button expand="block" (click)="saveEdit()">
-          <ion-icon name="saveOutline" slot="start"></ion-icon>
+          <ion-icon [icon]="saveOutline" slot="start"></ion-icon>
           Guardar
+        </ion-button>
+      </ion-content>
+    </ng-template>
+  </ion-modal>
+
+  <ion-modal [isOpen]="isColorOpen" (didDismiss)="isColorOpen = false">
+    <ng-template>
+      <ion-header>
+        <ion-toolbar>
+          <ion-title>Seleccionar color</ion-title>
+          <ion-buttons slot="end">
+            <ion-button (click)="isColorOpen = false">Cerrar</ion-button>
+          </ion-buttons>
+        </ion-toolbar>
+      </ion-header>
+
+      <ion-content class="ion-padding">
+        <ion-item>
+          <ion-input type="color" [(ngModel)]="color"></ion-input>
+        </ion-item>
+
+        <ion-button expand="block" (click)="clearColor()">Quitar color</ion-button>
+
+        <ion-button expand="block" (click)="isColorOpen = false">Listo</ion-button>
+      </ion-content>
+    </ng-template>
+  </ion-modal>
+
+  <ion-modal
+    [isOpen]="isEditColorOpen"
+    (didDismiss)="isEditColorOpen = false"
+  >
+    <ng-template>
+      <ion-header>
+        <ion-toolbar>
+          <ion-title>Seleccionar color</ion-title>
+          <ion-buttons slot="end">
+            <ion-button (click)="isEditColorOpen = false">Cerrar</ion-button>
+          </ion-buttons>
+        </ion-toolbar>
+      </ion-header>
+
+      <ion-content class="ion-padding">
+        <ion-item>
+          <ion-input type="color" [(ngModel)]="editColor"></ion-input>
+        </ion-item>
+
+        <ion-button expand="block" (click)="clearEditColor()">
+          Quitar color
+        </ion-button>
+
+        <ion-button expand="block" (click)="isEditColorOpen = false">
+          Listo
         </ion-button>
       </ion-content>
     </ng-template>

@@ -1,0 +1,11 @@
+.color-dot {
+  width: 14px;
+  height: 14px;
+  border-radius: 999px;
+  border: 1px solid var(--ion-color-medium);
+  margin-right: 10px;
+}
+
+.color-dot.empty {
+  background: transparent !important;
+}

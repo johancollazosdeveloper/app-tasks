@@ -1,90 +1,122 @@
-# Prueba Técnica – Aplicación de Tareas
+# Prueba Técnica -- Aplicación de Gestión de Tareas
 
-Ionic + Angular (Standalone) + Firebase Remote Config
+**Stack:** Ionic 7 + Angular Standalone + Firebase Remote Config\
+**Arquitectura:** Modular por dominio + Estado reactivo
 
-Aplicación híbrida desarrollada con Ionic y Angular que permite la gestión de tareas con categorización, persistencia local y control dinámico de funcionalidades mediante Firebase Remote Config.
+Aplicación híbrida orientada a demostrar buenas prácticas de
+arquitectura, manejo de estado, feature flags remotos y optimización de
+rendimiento en Angular moderno.
 
 ---
 
-## Objetivo
+## Objetivo Técnico
 
 Extender una aplicación base de tareas incorporando:
 
-- Gestión de categorías
-- Feature flag remoto
-- Optimización de rendimiento
-- Configuración para compilación Android e iOS
-- Buenas prácticas de arquitectura y mantenibilidad
+- Gestión de categorías desacoplada
+- Feature flag remoto real (no solo visual)
+- Arquitectura reactiva mantenible
+- Optimización de Change Detection
+- Preparación para compilación híbrida (Android / iOS)
+
+El foco no fue únicamente agregar funcionalidad, sino garantizar:
+
+- Escalabilidad
+- Aislamiento de responsabilidades
+- Control dinámico de features
+- Rendimiento consistente
 
 ---
 
-## Funcionalidades
+## Funcionalidades Implementadas
 
-### Gestión de tareas
+### 1. Gestión de Tareas
 
 - Crear tareas
 - Marcar como completadas
 - Eliminar tareas
-- Persistencia local con Ionic Storage
+- Persistencia local mediante Ionic Storage
+- Actualización reactiva del estado
 
-### Categorías
+### 2. Gestión de Categorías (Feature Controlada)
 
-- Crear, editar y eliminar categorías
-- Asignar categoría a una tarea
-- Filtrar tareas por categoría
+- CRUD completo de categorías
+- Asociación tarea → categoría
+- Filtrado reactivo por categoría
+- Protección de rutas si la feature está deshabilitada
 
-### Feature Flag (Firebase Remote Config)
+### 3. Feature Flag Remoto (`ff_categories`)
 
-- Activación/desactivación remota de la funcionalidad de categorías
-- Adaptación dinámica de UI y navegación
+Control dinámico de la funcionalidad mediante Firebase Remote Config.
+
+- Inicialización asíncrona segura
+- Servicio centralizado de flags
+- Protección de ruta con `canMatch`
+- UI adaptativa según estado del flag
+- No se instancia la feature si está deshabilitada
 
 ---
 
 ## Arquitectura
 
-Estructura modular por dominios:
+    src/
+    ├── core/
+    │   ├── models/
+    │   ├── services/
+    ├── features/
+    │   ├── tasks/
+    │   ├── categories/
 
-src/
-├── core/
-│ ├── models/
-│ ├── services/
-├── features/
-│ ├── tasks/
-│ ├── categories/
+### Principios Aplicados
 
-### Principios aplicados
-
-- Componentes Standalone (Angular moderno)
-- Separación clara entre lógica y presentación
-- Servicios reactivos con `BehaviorSubject`
-- ViewModel reactivo (`vm$`)
+- Componentes Standalone
+- Separación dominio / infraestructura
+- Servicios con estado reactivo (`BehaviorSubject`)
+- ViewModel observable (`vm$`)
 - ChangeDetectionStrategy.OnPush
 - Control Flow moderno (`@if`, `@for`)
+- Guards de ruta (`canMatch`)
+- Inmutabilidad en actualizaciones de estado
 
 ---
 
-## Tecnologías
+## Decisiones Técnicas Clave
 
-- Ionic 7+
-- Angular (Standalone)
-- RxJS
-- Ionic Storage
-- Firebase Remote Config
-- Cordova (Android / iOS)
+### Feature Flag implementado de forma estructural
 
----
+La activación/desactivación no se limita a la UI:
 
-## Requisitos
+- La ruta no es accesible.
+- El módulo no se carga.
+- El servicio no se inicializa.
+- No existen referencias inconsistentes.
 
-- Node.js LTS
-- Ionic CLI
-- Android Studio
-- JDK 17 (requerido para build Android)
-- macOS + Xcode (para IPA)
+Esto permite escalar a múltiples feature flags sin generar deuda
+técnica.
 
 ---
 
-## Instalación y ejecución (Web)
+### Manejo Reactivo del Estado
+
+Cada feature mantiene su estado interno mediante `BehaviorSubject`:
+
+- Emite snapshots inmutables.
+- Evita mutaciones directas.
+- Facilita migración futura a NgRx o Signal Store.
+
+---
+
+### Optimización de Rendimiento
+
+- `ChangeDetectionStrategy.OnPush`
+- Lazy Loading por dominio
+- Filtrado en memoria sobre snapshots
+- Configuración de `minimumFetchIntervalMillis` en Remote Config
+- Uso de `trackBy` en listas
+
+---
+
+## Instalación
 
 ```bash
 npm install
@@ -93,42 +125,56 @@ ionic serve
 
 ---
 
-## Compilación para Android e iOS (Cordova)
+## Compilación Híbrida (Cordova)
 
-La aplicación está preparada para compilación híbrida mediante Cordova.
+### Android
 
-Antes de compilar, generar el build web:
+```bash
+ionic build
+cordova platform add android
+cordova build android --release
+```
 
-- ionic build
+APK generado en:
 
-Copiar el resultado del build a:
+    cordova/platforms/android/app/build/outputs/apk/release/
 
-cordova/www/
+---
 
-### Android (Generación de APK)
+### iOS (macOS requerido)
 
-Desde la carpeta cordova:
+```bash
+cordova platform add ios
+cordova build ios --release
+```
 
-- cordova platform add android
-- cordova build android
+---
 
-Para generar APK en modo release:
+## Respuestas Técnicas Preparadas
 
-- cordova build android --release
+### ¿Cuál fue el principal reto?
 
-Ruta del APK generado:
+Diseñar una feature flag que desactive completamente la funcionalidad,
+no solo elementos visuales.\
+Se implementó control estructural mediante guard de ruta, servicio
+centralizado e inicialización controlada.
 
-cordova/platforms/android/app/build/outputs/apk/release/
+---
 
-### iOS (Generación de IPA)
+### ¿Qué optimizaciones aplicaste?
 
-Requiere macOS con Xcode instalado.
+- OnPush para reducir ciclos de change detection.
+- Lazy loading por dominio.
+- Estado reactivo con snapshots inmutables.
+- Control de fetch en Firebase para evitar peticiones excesivas.
+- TrackBy en listas.
 
-Desde la carpeta cordova:
+---
 
-- cordova platform add ios
-- cordova build ios
+### ¿Cómo garantizaste mantenibilidad?
 
-Para generar archivo IPA firmado:
-
-- cordova build ios --release
+- Separación clara por dominios.
+- Servicios con responsabilidad única.
+- Tipado estricto.
+- Arquitectura reactiva predecible.
+- Evitar lógica de negocio en componentes.

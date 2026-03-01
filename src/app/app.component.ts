@@ -21,7 +21,14 @@ export class AppComponent implements OnInit {
   ) {}
 
   async ngOnInit(): Promise<void> {
-    await this.flags.init(environment.firebaseConfig);
-    await Promise.all([this.categories.init(), this.tasks.init()]);
+    await this.flags.init(environment.firebaseConfig, {
+      isDev: !environment.production,
+    });
+
+    await this.tasks.init();
+
+    if (this.flags.snapshotCategoriesEnabled()) {
+      await this.categories.init();
+    }
   }
 }

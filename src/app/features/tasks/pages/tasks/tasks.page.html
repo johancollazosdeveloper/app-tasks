@@ -5,8 +5,8 @@
     @if (vm$ | async; as vm) {
       @if (vm.categoriesEnabled) {
         <ion-buttons slot="end">
-          <ion-button routerLink="/categorias">
-            <ion-icon name="pricetagOutline" slot="start"></ion-icon>
+          <ion-button (click)="goToCategories()">
+            <ion-icon [icon]="pricetagOutline" slot="start"></ion-icon>
             Categorías
           </ion-button>
         </ion-buttons>
@@ -83,14 +83,28 @@
                 {{ t.title }}
               </h2>
 
-              @if (vm.categoriesEnabled && t.categoryId) {
-                <p>{{ vm.categoryNameById.get(t.categoryId) ?? 'Sin categoría' }}</p>
+              @if (vm.categoriesEnabled) {
+                <div class="category-row">
+                  @if (t.categoryId) {
+                    <span
+                      class="color-dot"
+                      [style.background]="vm.categoryColorById.get(t.categoryId) || 'transparent'"
+                      [class.empty]="!vm.categoryColorById.get(t.categoryId)"
+                    ></span>
+                    <span class="category-text">
+                      {{ vm.categoryNameById.get(t.categoryId) ?? 'Sin categoría' }}
+                    </span>
+                  } @else {
+                    <span class="color-dot empty"></span>
+                    <span class="category-text">Sin categoría</span>
+                  }
+                </div>
               }
             </ion-label>
 
             <ion-buttons slot="end">
               <ion-button fill="clear" (click)="remove(t)">
-                <ion-icon name="trashOutline"></ion-icon>
+                <ion-icon [icon]="trashOutline"></ion-icon>
               </ion-button>
             </ion-buttons>
           </ion-item>
