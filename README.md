@@ -91,9 +91,6 @@ La activación/desactivación no se limita a la UI:
 - El servicio no se inicializa.
 - No existen referencias inconsistentes.
 
-Esto permite escalar a múltiples feature flags sin generar deuda
-técnica.
-
 ---
 
 ### Manejo Reactivo del Estado
