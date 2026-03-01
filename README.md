@@ -147,7 +147,7 @@ cordova build ios --release
 
 ---
 
-## Respuestas Técnicas Preparadas
+## Respuestas Técnicas Reto App Tasks
 
 ### ¿Cuál fue el principal reto?
 
