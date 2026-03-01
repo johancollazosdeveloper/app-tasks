@@ -1,0 +1,115 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Tareas</ion-title>
+
+    @if (vm$ | async; as vm) {
+      @if (vm.categoriesEnabled) {
+        <ion-buttons slot="end">
+          <ion-button (click)="goToCategories()">
+            <ion-icon [icon]="pricetagOutline" slot="start"></ion-icon>
+            Categorías
+          </ion-button>
+        </ion-buttons>
+      }
+    }
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  @if (vm$ | async; as vm) {
+    <ion-item>
+      <ion-input
+        label="Nueva tarea"
+        labelPlacement="stacked"
+        [(ngModel)]="title"
+        placeholder="Escribe una tarea"
+      ></ion-input>
+    </ion-item>
+
+    @if (vm.categoriesEnabled) {
+      <ion-item>
+        <ion-select
+          label="Categoría (opcional)"
+          labelPlacement="stacked"
+          [value]="selectedCategoryForNewTask"
+          (ionChange)="selectedCategoryForNewTask = $event.detail.value"
+        >
+          <ion-select-option [value]="null">Sin categoría</ion-select-option>
+
+          @for (c of vm.categories; track c.id) {
+            <ion-select-option [value]="c.id">
+              {{ c.name }}
+            </ion-select-option>
+          }
+        </ion-select>
+      </ion-item>
+    }
+
+    <ion-button expand="block" (click)="addTask()">Agregar</ion-button>
+
+    @if (vm.categoriesEnabled) {
+      <ion-item>
+        <ion-select
+          label="Filtrar por categoría"
+          labelPlacement="stacked"
+          [value]="vm.selectedCategoryId"
+          (ionChange)="onFilterChange($event.detail.value)"
+        >
+          <ion-select-option [value]="null">Todas</ion-select-option>
+
+          @for (c of vm.categories; track c.id) {
+            <ion-select-option [value]="c.id">
+              {{ c.name }}
+            </ion-select-option>
+          }
+        </ion-select>
+      </ion-item>
+    }
+
+    @if (vm.tasks.length === 0) {
+      <p>No hay tareas todavía.</p>
+    } @else {
+      <ion-list>
+        @for (t of vm.tasks; track t.id) {
+          <ion-item>
+            <ion-checkbox
+              slot="start"
+              [checked]="t.completed"
+              (ionChange)="toggle(t)"
+            ></ion-checkbox>
+
+            <ion-label>
+              <h2 [style.textDecoration]="t.completed ? 'line-through' : 'none'">
+                {{ t.title }}
+              </h2>
+
+              @if (vm.categoriesEnabled) {
+                <div class="category-row">
+                  @if (t.categoryId) {
+                    <span
+                      class="color-dot"
+                      [style.background]="vm.categoryColorById.get(t.categoryId) || 'transparent'"
+                      [class.empty]="!vm.categoryColorById.get(t.categoryId)"
+                    ></span>
+                    <span class="category-text">
+                      {{ vm.categoryNameById.get(t.categoryId) ?? 'Sin categoría' }}
+                    </span>
+                  } @else {
+                    <span class="color-dot empty"></span>
+                    <span class="category-text">Sin categoría</span>
+                  }
+                </div>
+              }
+            </ion-label>
+
+            <ion-buttons slot="end">
+              <ion-button fill="clear" (click)="remove(t)">
+                <ion-icon [icon]="trashOutline"></ion-icon>
+              </ion-button>
+            </ion-buttons>
+          </ion-item>
+        }
+      </ion-list>
+    }
+  }
+</ion-content>
