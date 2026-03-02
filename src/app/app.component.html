@@ -1,3 +1,12 @@
 <ion-app>
-  <ion-router-outlet></ion-router-outlet>
+  @if (ready$ | async) {
+    <ion-router-outlet></ion-router-outlet>
+  } @else {
+    <ion-content class="ion-padding">
+      <div class="boot">
+        <ion-spinner name="crescent"></ion-spinner>
+        <p>Iniciando...</p>
+      </div>
+    </ion-content>
+  }
 </ion-app>
