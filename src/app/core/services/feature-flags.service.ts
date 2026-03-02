@@ -33,8 +33,8 @@ export class FeatureFlagsService {
     this.rc = getRemoteConfig(this.app);
 
     this.rc.defaultConfig = { ff_categories: false } satisfies FeatureFlags;
-    this.rc.settings.minimumFetchIntervalMillis = opts?.isDev ? 0 : 60_000;
-    this.rc.settings.fetchTimeoutMillis = 4000;
+    this.rc.settings.minimumFetchIntervalMillis = opts?.isDev ? 0 : 0;
+    this.rc.settings.fetchTimeoutMillis = 5000;
 
     try {
       await fetchAndActivate(this.rc);
